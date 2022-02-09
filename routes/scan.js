@@ -23,6 +23,10 @@ router.post('/', function(req, res, next) {
     // 1 a) Taking a screenshot of the page and saving it
     await page.screenshot({path: 'public/images/screenshot.png'});
 
+    // body html
+    // let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+    let outbodyHTML = await page.evaluate(() => document.body.outerHTML);
+
     // Closing the Puppeteer controlled headless browser
     await browser.close();
 
@@ -55,7 +59,12 @@ router.post('/', function(req, res, next) {
           
           var req = https.request(options, function(response) {
               var certInfo = response.connection.getPeerCertificate();
-              return res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results, certInfo: certInfo });
+
+              // natural content
+              var natural = outbodyHTML.replace(/<[^>]*>?/gm, ''); 
+
+              return res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results, certInfo: certInfo, html: outbodyHTML, natural: natural });
+
           });
           
           req.end();
