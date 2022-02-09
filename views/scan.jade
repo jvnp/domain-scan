@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= "Project Puppeteer"
+  p Welcome to #{title}
+  .container
+    .col-md-12
+      form(method="post" action="/scan")
+        label.form-label(for='basic-url') Enter URL to proceed
+          .input-group.mb-3
+            span#basic-addon3.input-group-text E.g. https://example.com/
+            input#basic-url.form-control(type='text' name='url' aria-describedby='basic-addon3' value=url)
+            input.btn.btn-primary(type='submit' value="Submit")
+
+      h3 SCREENSHOT
+      img(src="/images/screenshot.png")
+
