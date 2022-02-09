@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var puppeteer = require('puppeteer');
 var dns = require('dns');
+var IPToASN = require('ip-to-asn');
+
+var client = new IPToASN();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -25,7 +28,7 @@ router.post('/', function(req, res, next) {
     // splits url https: // some.com
     urlArray = url.split('//');
 
-    // dns
+    // dns for ip
     dns.resolve4(urlArray[1], (err, addresses) => {
       // if any err
       // log to console
@@ -33,13 +36,18 @@ router.post('/', function(req, res, next) {
         console.log(err);
         return;
       }
-    
-      // otherwise show the first IPv4 address
-      // from the array
-      // console.log(addresses[0]); // eg: 64.233.191.113
 
-      // send render information
-      res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0] });
+      // address resolved from dns will be used for asn
+      client.query(addresses, function (err, results) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        // send render information
+        res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results });
+      });
+
 
     });
   });
