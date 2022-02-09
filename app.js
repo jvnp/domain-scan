@@ -7,6 +7,9 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var scanRouter = require('./routes/scan');
 
+//db
+var mongoose = require('mongoose');
+
 var app = express();
 
 // view engine setup

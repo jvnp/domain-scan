@@ -12,6 +12,7 @@
     "http-errors": "~1.6.3",
     "ip-to-asn": "^1.0.0",
     "jade": "~1.11.0",
+    "mongoose": "^6.2.1",
     "morgan": "~1.9.1",
     "puppeteer": "^13.2.0"
   }
