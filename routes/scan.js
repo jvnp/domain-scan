@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var puppeteer = require('puppeteer');
+var https = require('https');
 var dns = require('dns');
 var IPToASN = require('ip-to-asn');
 
@@ -19,7 +20,7 @@ router.post('/', function(req, res, next) {
     const page = await browser.newPage();
     await page.goto(url);
 
-    // Taking a screenshot of the page and saving it
+    // 1 a) Taking a screenshot of the page and saving it
     await page.screenshot({path: 'public/images/screenshot.png'});
 
     // Closing the Puppeteer controlled headless browser
@@ -43,9 +44,28 @@ router.post('/', function(req, res, next) {
           console.error(err);
           return;
         }
+        // ssl certificate info if https
+        if(urlArray[0] === 'https:'){
 
-        // send render information
-        res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results });
+            var options = {
+              host: urlArray[1],
+              port: 443,
+              method: 'GET'
+          };
+          
+          var req = https.request(options, function(response) {
+              var certInfo = response.connection.getPeerCertificate();
+              return res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results, certInfo: certInfo });
+          });
+          
+          req.end();
+
+        } else {
+
+          // send render information
+          return res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results });
+
+        }
       });
 
 

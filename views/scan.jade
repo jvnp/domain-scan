@@ -21,4 +21,8 @@ block content
       br
       h3 ASN :
       p !{JSON.stringify(asn)}
+      br
+      h3 Cert Info:
+      if certInfo
+        p !{JSON.stringify(certInfo)}
 
