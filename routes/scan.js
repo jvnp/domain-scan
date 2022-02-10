@@ -7,6 +7,9 @@ var IPToASN = require('ip-to-asn');
 
 var client = new IPToASN();
 
+// db
+var Scan = require('../db');
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.redirect('/')
@@ -14,14 +17,17 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
 
-  const url = req.body.url;
+  // timestamp as key and image name
+  const key = + new Date()
 
+  const url = req.body.url;
+  
   puppeteer.launch().then(async function(browser) {
     const page = await browser.newPage();
     await page.goto(url);
 
     // 1 a) Taking a screenshot of the page and saving it
-    await page.screenshot({path: 'public/images/screenshot.png'});
+    await page.screenshot({path: `public/images/scan/${key}.png`});
 
     // body html
     // let bodyHTML = await page.evaluate(() => document.body.innerHTML);
@@ -63,7 +69,40 @@ router.post('/', function(req, res, next) {
               // natural content
               var natural = outbodyHTML.replace(/<[^>]*>?/gm, ''); 
 
-              return res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results, certInfo: certInfo, html: outbodyHTML, natural: natural });
+              // stringify
+              asn = JSON.stringify(results)
+              ssl = JSON.stringify(certInfo)
+
+              // save instance
+              var saveInstance = new Scan({
+                key: key,
+                url: url,
+                ip: addresses[0],
+                asn: asn,
+                ssl: ssl,
+                html: outbodyHTML,
+                natural: natural,
+              });
+
+              // save prepared object
+              saveInstance.save(function (err){
+                if (err){
+                  console.log('Your information couldn\'t be updated.');
+                }
+              });
+
+              // render prepared object
+              return res.render('scan', { 
+                title: 'Domain Scan',
+                url: url,
+                key: key,
+                image:key + '.jpg',
+                address: addresses[0],
+                asn: asn,
+                certInfo: ssl,
+                html: outbodyHTML,
+                natural: natural
+              });
 
           });
           
@@ -72,7 +111,13 @@ router.post('/', function(req, res, next) {
         } else {
 
           // send render information
-          return res.render('scan', { title: 'Puppeteer', url: url, address: addresses[0], asn: results });
+          return res.render('scan', {
+            title: 'Domain Scan',
+            key: key,
+            url: url,
+            address: addresses[0],
+            asn: results 
+          });
 
         }
       });

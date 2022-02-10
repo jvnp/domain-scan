@@ -10,6 +10,14 @@ var scanRouter = require('./routes/scan');
 //db
 var mongoose = require('mongoose');
 
+//Set up default mongoose connection
+var mongoDB = 'mongodb://127.0.0.1/domain-scan';
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true}, (err) => {
+  if(err){
+    console.log('Error in DB Connection : ' + JSON.stringify(err, undefined, 2));
+  }
+});
+
 var app = express();
 
 // view engine setup

@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  h1= "Project Puppeteer"
+  h1= "Project DOMAIN SCAN"
   p Welcome to #{title}
   .container
     .col-md-12
@@ -12,23 +12,24 @@ block content
             input#basic-url.form-control(type='text' name='url' aria-describedby='basic-addon3' value=url)
             input.btn.btn-primary(type='submit' value="Submit")
 
-      h3 SCREENSHOT
-      img(src="/images/screenshot.png")
+      h3 SCREENSHOT:
+      - var imgName = "/images/scan/"+key+".png"
+      img(src=imgName)
       br
       br
       h3 ADDRESS : #{address}
       br
       br
       h3 ASN :
-      p !{JSON.stringify(asn)}
-      br
-      h3 Cert Info:
+      p !{asn}
       if certInfo
-        p !{JSON.stringify(certInfo)}
+        br
+        h3 Cert Info:
+          p !{certInfo}
       br
-      h3 HTML
+      h3 HTML:
         p #{html}
       br
-      h3 Natural
+      h3 Natural:
         p #{natural}
 

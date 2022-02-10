@@ -73,3 +73,5 @@ package-lock.json
 lib
 
 # custom
+#images of scan
+public/images/scan/*.png

@@ -1,10 +1,10 @@
-# Puppeteer Project
-> This project is dedicated to URL Scan
+# DOMAIN SCAN Project
+> This project is dedicated to Domain Name/URL Scan
 
 ## Getting Started
 Extend template or clone project using following command below:
 ```sh
-git clone https://github.com/jvnp/puppeteer
+git clone https://github.com/jvnp/domain-scan
 ```
 
 Install required dependencies
@@ -17,8 +17,13 @@ $ npm install --only=dev
 1. `npm start` - Executes your index.js file with node
 
 ## Prerequsite
-* express
-* puppeteer
+* NodeJS
+* MongoDB
+
+Please view officical documentation for installation
+
+## Dependencies
+Available in package.json
 
 ## Version Information
 Current Version: 1.0.0
