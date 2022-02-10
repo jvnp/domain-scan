@@ -19,7 +19,7 @@ const scanSchema = new Mongoose.Schema({
   },
   ssl: {
       type: String,
-      required: true
+      required: false
   },
   html: {
       type: String,

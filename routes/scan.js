@@ -7,124 +7,82 @@ var IPToASN = require('ip-to-asn');
 
 var client = new IPToASN();
 
+var {getSiteData, getDNS, getCertificates} = require('../lib');
+
 // db
 var Scan = require('../db');
 
-/* GET users listing. */
+/* GET: /scan */
 router.get('/', function(req, res, next) {
   res.redirect('/')
 });
 
-router.post('/', function(req, res, next) {
+/* POST: /scan */
+router.post('/', async function(req, res, next) {
 
   // timestamp as key and image name
   const key = + new Date()
-
+  // url input from user
   const url = req.body.url;
-  
-  puppeteer.launch().then(async function(browser) {
-    const page = await browser.newPage();
-    await page.goto(url);
+  // splits url ['https', 'some.com']
+  const urlArray = url.split('://');
+  // default certificate value
+  let ssl = false;
 
-    // 1 a) Taking a screenshot of the page and saving it
-    await page.screenshot({path: `public/images/scan/${key}.png`});
+  const { html } = await getSiteData(url, key)
+  const { ip, asnDetails } = await getDNS(urlArray)
+  const natural = html.replace(/<[^>]*>?/gm, '')
+  const asn = JSON.stringify(asnDetails)
 
-    // body html
-    // let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-    let outbodyHTML = await page.evaluate(() => document.body.outerHTML);
+  console.log(asn)
 
-    // Closing the Puppeteer controlled headless browser
-    await browser.close();
+  if (urlArray[0] === 'https') {
 
-    // splits url https: // some.com
-    urlArray = url.split('//');
+    ssl = await getCertificates(urlArray[1])
+    ssl = JSON.stringify(ssl)
 
-    // dns for ip
-    dns.resolve4(urlArray[1], (err, addresses) => {
-      // if any err
-      // log to console
-      if (err) {
-        console.log(err);
-        return;
-      }
-
-      // address resolved from dns will be used for asn
-      client.query(addresses, function (err, results) {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        // ssl certificate info if https
-        if(urlArray[0] === 'https:'){
-
-            var options = {
-              host: urlArray[1],
-              port: 443,
-              method: 'GET'
-          };
-          
-          var req = https.request(options, function(response) {
-              var certInfo = response.connection.getPeerCertificate();
-
-              // natural content
-              var natural = outbodyHTML.replace(/<[^>]*>?/gm, ''); 
-
-              // stringify
-              asn = JSON.stringify(results)
-              ssl = JSON.stringify(certInfo)
-
-              // save instance
-              var saveInstance = new Scan({
-                key: key,
-                url: url,
-                ip: addresses[0],
-                asn: asn,
-                ssl: ssl,
-                html: outbodyHTML,
-                natural: natural,
-              });
-
-              // save prepared object
-              saveInstance.save(function (err){
-                if (err){
-                  console.log('Your information couldn\'t be updated.');
-                }
-              });
-
-              // render prepared object
-              return res.render('scan', { 
-                title: 'Domain Scan',
-                url: url,
-                key: key,
-                image:key + '.jpg',
-                address: addresses[0],
-                asn: asn,
-                certInfo: ssl,
-                html: outbodyHTML,
-                natural: natural
-              });
-
-          });
-          
-          req.end();
-
-        } else {
-
-          // send render information
-          return res.render('scan', {
-            title: 'Domain Scan',
-            key: key,
-            url: url,
-            address: addresses[0],
-            asn: results 
-          });
-
-        }
-      });
-
-
+    // save instance
+    var saveInstance = new Scan({
+      key,
+      url,
+      ip,
+      asn,
+      ssl,
+      html,
+      natural
     });
+
+  } else {
+
+    // save instance
+    var saveInstance = new Scan({
+      key,
+      url,
+      ip,
+      asn,
+      html,
+      natural
+    });
+
+  }
+
+  // save prepared object
+  saveInstance.save(function (err){
+    if (err){
+      console.log('Your information couldn\'t be updated.');
+    }
   });
+
+  res.render('scan', {
+    title: 'Domain Scan',
+    key,
+    html,
+    url,
+    ip,
+    asn,
+    ssl,
+    natural
+  })
 
 });
 

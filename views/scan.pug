@@ -17,15 +17,15 @@ block content
       img(src=imgName)
       br
       br
-      h3 ADDRESS : #{address}
+      h3 ADDRESS : #{ip}
       br
       br
       h3 ASN :
       p !{asn}
-      if certInfo
+      if ssl
         br
         h3 Cert Info:
-          p !{certInfo}
+          p !{ssl}
       br
       h3 HTML:
         p #{html}
