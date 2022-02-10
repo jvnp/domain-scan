@@ -1,11 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var puppeteer = require('puppeteer');
-var https = require('https');
-var dns = require('dns');
-var IPToASN = require('ip-to-asn');
-
-var client = new IPToASN();
 
 var {getSiteData, getDNS, getCertificates} = require('../lib');
 
@@ -33,8 +27,6 @@ router.post('/', async function(req, res, next) {
   const { ip, asnDetails } = await getDNS(urlArray)
   const natural = html.replace(/<[^>]*>?/gm, '')
   const asn = JSON.stringify(asnDetails)
-
-  console.log(asn)
 
   if (urlArray[0] === 'https') {
 
